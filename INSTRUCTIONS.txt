@@ -1,0 +1,8 @@
+ISING2D.py might be executed with python. Does not need any data file to be executed.
+this code is a simulation of multiple 2D spin array. This code calculates the expected final energy and magnetization.
+this code might take several minutes to run.
+
+
+magnetizacion.py might be executed with python. Does not need any data file to be executed.
+this code is a simulation of a 2D spin array, and plots the magnetization in a single simulation in time.
+is a part of the code of ISING2D.py

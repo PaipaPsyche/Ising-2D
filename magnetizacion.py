@@ -16,11 +16,10 @@ import matplotlib.pyplot as plt
 
 #tiempo esperado = 10 minutos
 
-N=12 #cuadricula NxN
-J=100 #Parametro  J
-t=1500  #numero de "ticks" de la simulación
-n_it=20 #numero iteraciones para sacae E y M promedio
-n_Tintervalos=35   #intervalos de temperatura
+N=25 #cuadricula NxN
+J=100000  #Parametro  J
+t=10000  #numero de "ticks" de la simulación
+
 kb=1 #Parámentro Kb
 Tc=(2*J)/(kb*np.arcsinh(1))  #Temperatura critica
 Tp=Tc*(0.4) #una teperatura mas baja que la temperatura critica
@@ -103,9 +102,6 @@ def DeltaEAleatorio(Mat):
             MatRet=MatPrueba.copy()
     return ret,MatRet
 
-#grafica la matriz y sus valores
-def ploMat(MAT):
-    plt.imshow(MAT)
 #Magnetizacion total de una matriz dada  
 def magnetizacion(MAT):
     M=0
@@ -114,91 +110,31 @@ def magnetizacion(MAT):
             M=M+MAT[i,j]
     
     return M/(N*N)
-#========================
-E=[]
-T=[]
-e=CalcH(Mat)
 
-E.append(e)
-T.append(0)
-MatS=Mat.copy()
-#Se grafican el sistema inicial y el final de una iteracion
-#Se grafica como varia la energia del sistema en el tiempo
-FIGI=plt.figure(figsize=(10,10))
-plt.title("Configuracion Inicial "+str(N)+"x"+str(N),fontsize=20)
-ploMat(MatS)
-FIGI.savefig("Cinicial.png")
-
-for k in range (t):
-    de,M=DeltaEAleatorio(MatS)
-    MatS=M.copy()
-    e=e+de
-    E.append(e)
-    T.append(k+1)
-FIG=plt.figure(figsize=(10,10))
-plt.plot(T,E)
-plt.xlabel("Tiempo")
-plt.ylabel("Energia")
-
-bb=float("{0:.2f}".format(b))
-plt.title("Ising con "+str(N*N)+" particulas -"+str(t)+" repeticiones (J="+str(J)+", B="+str(bb)+")",fontsize=20)
-FIG.savefig("EvolucionEnergia.png")
-
-
-FIGF=plt.figure(figsize=(10,10))
-plt.title("Configuracion Final "+str(N)+"x"+str(N),fontsize=20)
-ploMat(MatS)
-FIGF.savefig("Cfinal.png")
-
-#Calcula la Energia y la magnetizacion de el sistema final estable 
 def EMfinal(t,MAT):
     Matp=MAT.copy()
+    Mag=np.zeros([t,2])
     en=CalcH(Matp)
     for k in range (t):
         de,M=DeltaEAleatorio(Matp)
         Matp=M.copy()
         en=en+de
+        magn=magnetizacion(Matp)
+        Mag[k,0]=k
+        Mag[k,1]=magn
+	
     m=magnetizacion(Matp)
-    return e,m
+    return en,m,Mag
 
+e,m,MAG=EMfinal(t,Mat)
 
-#Calcula el promedio de magnetizacion y energia en los sitemas estables finales
-def EMpromedio(t,n, MAT):
-    Entot=0
-    Mtot=0
-    for h in range (n):
-        print("it ",h )
-        e,m=EMfinal(t,MAT)
-        Entot=Entot+e
-        Mtot=Mtot+m
-    return Entot/n,Mtot/n
-
-       
-#se barren ciertos intervalos de energia antes y despues de la
-#temperatura critica. Se grafica magnetizacion Vs temperatura.Escala logaritmica.
-expC=np.log10(Tc)
-multiExp=np.linspace(int(0.1*expC)-4,int(1.5*expC)+4,n_Tintervalos)
-multi=[]
-for expe in multiExp:
-    multi.append(pow(10,expe-1))
-Mparr=[]
-#se aplico escala logaritmica al rededor de la tmperatura critica
-for temperature in multi:
-    Tp=temperature
-    b=1/(kb*Tp) 
-    print("Temp = ",Tp)
-    Ep,Mp=EMpromedio(t,n_it,Mat)
-    Mparr.append(Mp)
-FIGM=plt.figure(figsize=(10,10))
-plt.semilogx(basex=10)
-plt.scatter(multi,Mparr)
-plt.xlabel("Temperatura")
+plt.figure()
+plt.plot(MAG[:,0],MAG[:,1])
+plt.xlabel("Tiempo")
 plt.ylabel("Magnetizacion")
-plt.title("Magnetizacion Vs. Temperatura",fontsize=20)
-plt.axvline(x=Tc,c='r')
-FIGM.savefig("Magnetizacion.png")
+plt.savefig("MagnetizacionIndividual.png")
 
 
-  
+
 
 
